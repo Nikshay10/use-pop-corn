@@ -51,10 +51,20 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
+  const [movies, setMovies] = useState(tempMovieData);
   return (
     <>
-      <NavBar />
-      <Main />
+      <NavBar>
+        <Logo />
+        <Search />
+        <NumResult movies={movies} />
+      </NavBar>
+      <Main>
+        <ListBox movies={movies}>
+          <MovieList movies={movies} />
+        </ListBox>
+        <WatchedBox movies={movies} />
+      </Main>
     </>
   );
 }
@@ -81,29 +91,26 @@ function Logo() {
   );
 }
 
-function NumResult() {
+function NumResult({ movies }) {
   return (
     <p className="num-results">
-      Found <strong>X</strong> results
+      Found <strong>{movies.length}</strong> results
     </p>
   );
 }
 
-function NavBar() {
+function NavBar({ children }) {
   return (
     <nav className="nav-bar">
-      <Logo />
-      <Search />
-      <NumResult />
+      {children}
     </nav>
   );
 }
 
-function Main() {
+function Main({ children }) {
   return (
     <main className="main">
-      <ListBox />
-      <WatchedBox />
+      {children}
     </main>
   );
 }
@@ -138,7 +145,7 @@ function WatchedMoviesList({ watched }) {
   )
 }
 
-function WatchedMovie({movie}) {
+function WatchedMovie({ movie }) {
   return (
     <li key={movie.imdbID}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
@@ -192,9 +199,7 @@ function WatchedSummary({ watched }) {
   )
 }
 
-function MovieList() {
-  const [movies, setMovies] = useState(tempMovieData);
-
+function MovieList({ movies }) {
   return (
     <ul className="list">
       {movies?.map((movie) => <Movie key={movie.imdbID} movie={movie} />)}
@@ -217,7 +222,7 @@ function Movie({ movie }) {
   )
 }
 
-function ListBox() {
+function ListBox({ children }) {
   const [isOpen1, setIsOpen1] = useState(true);
 
   return (
@@ -228,7 +233,7 @@ function ListBox() {
       >
         {isOpen1 ? "–" : "+"}
       </button>
-      {isOpen1 && <MovieList />}
+      {isOpen1 && children}
     </div>
   );
 }
