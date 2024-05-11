@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const tempMovieData = [
   {
@@ -50,9 +50,22 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
+const KEY = "9197593a";
+const QUERY = "star"
+
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => async () =>{
+    setIsLoading(true)
+    const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&s=${QUERY}`)
+    const data = await res.json();
+    setMovies(data.Search)
+    setIsLoading(false)
+  }, [])
+
   return (
     <>
       <NavBar>
@@ -62,7 +75,7 @@ export default function App() {
       </NavBar>
       <Main>
         <Box movies={movies}>
-          <MovieList movies={movies} />
+          {isLoading ? <Loader /> : <MovieList movies={movies} />}
         </Box>
         <Box movies={movies}>
           <WatchedSummary watched={watched} />
@@ -84,6 +97,10 @@ function Search() {
       onChange={(e) => setQuery(e.target.value)}
     />
   );
+}
+
+function Loader(){
+  return <p className="loader">Loading...</p>
 }
 
 function Logo() {
