@@ -51,19 +51,37 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const KEY = "9197593a";
-const QUERY = "star"
+const QUERY = "interstellar"
 
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   useEffect(() => async () =>{
-    setIsLoading(true)
-    const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&s=${QUERY}`)
-    const data = await res.json();
-    setMovies(data.Search)
-    setIsLoading(false)
+    try{
+      setIsLoading(true)
+      const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&s=${QUERY}`)
+      if(!res.ok) throw new Error("oops! error")
+
+      const data = await res.json();
+      console.log(data)
+      const flag = data.Response === "False" 
+      console.log(flag)
+
+      if(flag){throw new Error("Not Found")}
+
+      setMovies(data.Search)
+    }
+    catch(err) {
+      console.log(err.message, error)
+      setError(err.message)
+    }
+    finally {
+      console.log(error)
+      setIsLoading(false)
+    }
   }, [])
 
   return (
@@ -75,7 +93,9 @@ export default function App() {
       </NavBar>
       <Main>
         <Box movies={movies}>
-          {isLoading ? <Loader /> : <MovieList movies={movies} />}
+          {isLoading && <Loader />}
+          {error && <Error message={error} />}
+          {!isLoading && !error && <MovieList movies={movies} />}
         </Box>
         <Box movies={movies}>
           <WatchedSummary watched={watched} />
@@ -97,6 +117,14 @@ function Search() {
       onChange={(e) => setQuery(e.target.value)}
     />
   );
+}
+
+function Error({message}){
+  return(
+    <p className="error">
+      <span>{message}</span>
+    </p>
+  )
 }
 
 function Loader(){
