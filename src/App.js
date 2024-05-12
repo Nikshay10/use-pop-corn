@@ -51,7 +51,7 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const KEY = "9197593a";
-const QUERY = "interstellar"
+const QUERY = "rthtrhrthrtht"
 
 export default function App() {
   const [movies, setMovies] = useState([]);
@@ -63,23 +63,21 @@ export default function App() {
     try{
       setIsLoading(true)
       const res = await fetch(`https://www.omdbapi.com/?apikey=${KEY}&s=${QUERY}`)
+      
       if(!res.ok) throw new Error("oops! error")
 
       const data = await res.json();
       console.log(data)
-      const flag = data.Response === "False" 
-      console.log(flag)
 
-      if(flag){throw new Error("Not Found")}
+      if(data.Response === "False") throw new Error("Not Found")
 
       setMovies(data.Search)
     }
     catch(err) {
-      console.log(err.message, error)
+      console.log(err.message)
       setError(err.message)
     }
     finally {
-      console.log(error)
       setIsLoading(false)
     }
   }, [])
